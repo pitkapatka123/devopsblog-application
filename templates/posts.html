@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Blog Posts</h2>
+<ul>
+  {% for post in posts %}
+    <li>
+      <strong><a href="{{ url_for('post_detail', slug=post.path.split('/')[-1]) }}">
+        {{ post.meta.title }}</a></strong>
+      <small>- {{ post.meta.date }}</small>
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}
