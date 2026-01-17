@@ -1,5 +1,6 @@
 from flask import Flask, render_template, abort, redirect, url_for
 from flask_flatpages import FlatPages
+import datetime
 
 app = Flask(__name__)
 
@@ -19,7 +20,7 @@ def list_posts():
 
     posts = [p for p in flatpages if p.path.startswith('posts/')]
 
-    posts.sort(key=lambda p: p.meta.get('date', ''), reverse=True)
+    posts.sort(key=lambda p: p.meta.get('date') or datetime.date.min, reverse=True)
     return render_template('posts.html', posts=posts)
 
 @app.route('/post/<slug>')
@@ -44,6 +45,10 @@ def contact_page():
     if not page:
         abort(404)
     return render_template('page.html', page=page)
+
+@app.route('/health')
+def health():
+    return {"status": "ok"}, 200
 
 if __name__ == '__main__':
     app.run(debug=True)
