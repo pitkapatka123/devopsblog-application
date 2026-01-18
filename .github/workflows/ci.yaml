@@ -1,4 +1,4 @@
-name: test
+name: ci
 
 on:
   push:
@@ -6,11 +6,24 @@ on:
   workflow_dispatch:
 
 jobs:
-  smoke:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Show context
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Show build context
         run: |
           echo "repo: $GITHUB_REPOSITORY"
           echo "ref:  $GITHUB_REF"
           echo "sha:  $GITHUB_SHA"
+          echo "pwd:  $(pwd)"
+          ls -la
+
+      - name: Build Docker image
+        run: |
+          IMAGE="devopsblog-application:${GITHUB_SHA}"
+          echo "Building $IMAGE"
+          docker build -t "$IMAGE" .
+          docker images | head -n 20
