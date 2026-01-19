@@ -43,9 +43,15 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: build and pushw
+        id: buildpush
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
           tags: |
             ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}:sha-${{ github.sha }}
+            
+      - name: print digest hash
+        run: |
+            echo "DIGEST=${{ steps.buildpush.outputs.digest }}"
+            echo "IMAGE=${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}@${{ steps.buildpush.outputs.digest }}"
