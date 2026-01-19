@@ -5,25 +5,47 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    env:
+      AWS_REGION: eu-central-1
+      AWS_ACCOUNT_ID: "648835056994"
+      ECR_REPO: "devops-blog"
 
-      - name: Show build context
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v6
+
+      - name: Show context
         run: |
           echo "repo: $GITHUB_REPOSITORY"
-          echo "ref:  $GITHUB_REF"
           echo "sha:  $GITHUB_SHA"
-          echo "pwd:  $(pwd)"
-          ls -la
 
-      - name: Build Docker image
-        run: |
-          IMAGE="devopsblog-application:${GITHUB_SHA}"
-          echo "Building $IMAGE"
-          docker build -t "$IMAGE" .
-          docker images | head -n 20
+      - name: debug role target
+        run: echo "ROLE=${{ vars.AWS_ROLE_TO_ASSUME }}"
+
+      - name: configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: verify AWS identity
+        run: aws sts get-caller-identity
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: build and pushw
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}:sha-${{ github.sha }}
