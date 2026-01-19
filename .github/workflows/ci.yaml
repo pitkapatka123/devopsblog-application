@@ -52,4 +52,4 @@ jobs:
             
       - name: print digest hash
         run: |
-            echo "DIGEST=${{ steps.build-push-action.outputs.digest }}"
+            echo "DIGEST=${{ steps.build-and-push.outputs.digest }}"
