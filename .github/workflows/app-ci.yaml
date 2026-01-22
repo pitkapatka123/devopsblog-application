@@ -2,6 +2,8 @@ name: ci
 
 on:
   push:
+    paths-ignore:
+      - 'content/**'
     branches: [ "main" ]
   workflow_dispatch:
 
@@ -11,6 +13,7 @@ permissions:
 
 jobs:
   build-and-push:
+    name: build and pushe the image to ECR
     runs-on: ubuntu-latest
 
     env:
@@ -55,3 +58,4 @@ jobs:
         run: |
             echo "DIGEST=${{ steps.buildpush.outputs.digest }}"
             echo "IMAGE=${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}@${{ steps.buildpush.outputs.digest }}"
+   

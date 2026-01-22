@@ -1,0 +1,31 @@
+name: content_ci
+
+on:
+  push:
+    paths:
+      - 'content/**'
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+    upload-content:
+      name: Upload blog content to S3
+      runs-on: ubuntu-latest
+
+      steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: eu-central-1
+
+      - name: Upload content to S3 (dev)
+        run: |
+          aws s3 sync content/ s3://${{ vars.CONTENT_BUCKET }}/dev/ --delete
