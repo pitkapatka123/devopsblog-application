@@ -4,7 +4,7 @@
 <ul>
   {% for post in posts %}
     <li>
-      <strong><a href="{{ url_for('post_detail', slug=post.path.split('/')[-1]) }}">
+      <strong><a href="{{ url_for('post_detail', slug=post.slug) }}">
         {{ post.meta.title }}</a></strong>
       <small>- {{ post.meta.date }}</small>
     </li>
