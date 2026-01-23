@@ -13,6 +13,7 @@ permissions:
 
 jobs:
     upload-content:
+      permissions: write-all
       name: Upload blog content to S3
       runs-on: ubuntu-latest
       env:
