@@ -83,15 +83,16 @@ jobs:
           path: gitops
           token: ${{ steps.apptoken.outputs.token }}
 
-      - name: modify dev deployment with the newly built image (yq via container)
-        uses: docker://mikefarah/yq:4
-        env:
-          IMAGE_REF: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}@${{ steps.buildpush.outputs.digest }}
+      - name: modify dev deployment with the newly built image
+        uses: fjogeleit/yaml-update-action@main
         with:
-          args: -i '.spec.template.spec.containers[0].image = strenv(IMAGE_REF)' gitops/dev/devopsblog-dev/deployment.yaml
+          valueFile: gitops/dev/devopsblog-dev/deployment.yaml
+          propertyPath: "spec.template.spec.containers[0].image"
+          value: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}@${{ steps.buildpush.outputs.digest }}
 
 
-      - uses: peter-evans/create-pull-request@v6
+      - name: Create PR
+        uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ steps.apptoken.outputs.token }}
           path: gitops
