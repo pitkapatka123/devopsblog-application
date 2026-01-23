@@ -29,6 +29,7 @@ And thanks to the guys at Telerik:
 
 - Everyday Git usage
 - CI/CD pipelines
+- CD strategies and best practices
 - GitHub Actions (inc. yaml files)
 - SDLC
 - Kubernetes intermediate
