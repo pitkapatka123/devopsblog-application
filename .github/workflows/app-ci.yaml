@@ -58,4 +58,48 @@ jobs:
         run: |
             echo "DIGEST=${{ steps.buildpush.outputs.digest }}"
             echo "IMAGE=${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}@${{ steps.buildpush.outputs.digest }}"
-   
+
+      - name: Load GitHubApp creds from aws
+        id: ghapp
+        run: |
+          aws secretsmanager get-secret-value --region "${AWS_REGION}" --secret-id github/devopsblog/github-app --query SecretString --output text > ghapp.json
+          echo "app_id=$(jq -r .app_id ghapp.json)" >> "$GITHUB_OUTPUT"
+          echo "installation_id=$(jq -r .installation_id ghapp.json)" >> "$GITHUB_OUTPUT"
+          echo "private_key<<EOF" >> "$GITHUB_OUTPUT"
+          jq -r .private_key_pem ghapp.json >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - uses: tibdex/github-app-token@v2
+        id: apptoken
+        with:
+          app_id: ${{ steps.ghapp.outputs.app_id }}
+          installation_id: ${{ steps.ghapp.outputs.installation_id }}
+          private_key: ${{ steps.ghapp.outputs.private_key }}
+
+      - uses: actions/checkout@v4
+        with:
+          repository: valentindodovu51/devopsblog-gitops
+          ref: master
+          path: gitops
+          token: ${{ steps.apptoken.outputs.token }}
+
+      - name: Patch dev deployment (yq via container)
+        uses: docker://mikefarah/yq:4
+        env:
+          IMAGE_REF: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}@${{ steps.buildpush.outputs.digest }}
+        with:
+          args: >
+            -i
+            .spec.template.spec.containers[0].image = strenv(IMAGE_REF)
+            gitops/dev/devopsblog-dev/deployment.yaml
+
+      - uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ steps.apptoken.outputs.token }}
+          path: gitops
+          base: master
+          branch: ci/dev-${{ github.sha }}
+          delete-branch: true
+          title: "dev: deploy ${{ github.sha }} (digest)"
+          body: "Image: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}@${{ steps.buildpush.outputs.digest }}"
+          commit-message: "dev: deploy ${{ github.sha }} (digest)"
