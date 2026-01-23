@@ -88,10 +88,8 @@ jobs:
         env:
           IMAGE_REF: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}@${{ steps.buildpush.outputs.digest }}
         with:
-          args: >
-            -i
-            .spec.template.spec.containers[0].image = strenv(IMAGE_REF)
-            devopsblog-gitops/dev/devopsblog-dev/deployment.yaml
+          args: -i '.spec.template.spec.containers[0].image = strenv(IMAGE_REF)' gitops/dev/devopsblog-dev/deployment.yaml
+
 
       - uses: peter-evans/create-pull-request@v6
         with:
