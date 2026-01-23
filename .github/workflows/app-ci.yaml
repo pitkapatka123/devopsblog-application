@@ -4,6 +4,7 @@ on:
   push:
     paths-ignore:
       - 'content/**'
+      - '.github/workflows/content-ci.yaml'
     branches: [ "main" ]
   workflow_dispatch:
 
