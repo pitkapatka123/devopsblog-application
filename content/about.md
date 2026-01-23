@@ -9,7 +9,7 @@ Position: Junior DevOps
 
 Skills:
 
-- Broad common knowledge in IT
+- Broad knowledge in IT
 - Incident management
 - Application Support
 - Certified Azure Administrator Associate (AZ-104)
@@ -22,10 +22,22 @@ Skills:
     * Application Deployment (Azure Container Apps & Container instances, Azure Web Apps)
 - Monitoring and Logging
 - Docker intermediate
-- Kubernetes beginner
 - Basic DB knowledge
-- Common Networking 
-- Basic Git skills
+- Beginner Networking 
+
+And thanks to the guys at Telerik:
+
+- Everyday Git usage
+- GHA CI/CD pipelines (inc. yaml files)
+- SDLC
+- Kubernetes intermediate
+- AWS beginner
+- ArgoCD intermediate
+- GitOps intermediate
+- Terraform intermediate
+- DevSecOps (beginner) and "Shift left" mindset
+
+And much, much more!
 
 Interests:
 
