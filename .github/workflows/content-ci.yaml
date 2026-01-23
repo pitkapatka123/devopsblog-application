@@ -36,12 +36,14 @@ jobs:
           jq -r .private_key_pem ghapp.json >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
 
-      - uses: tibdex/github-app-token@v2
+      - name: create GitHubApp token
         id: apptoken
+        uses: actions/create-github-app-token@v2
         with:
-          app_id: ${{ steps.ghapp.outputs.app_id }}
-          installation_id: ${{ steps.ghapp.outputs.installation_id }}
-          private_key: ${{ steps.ghapp.outputs.private_key }}
+          app-id: ${{ steps.ghapp.outputs.app_id }}
+          private-key: ${{ steps.ghapp.outputs.private_key }}
+          owner: valentindodovu51
+          repositories: devopsblog-gitops
 
       - name: Upload content to S3 (dev)
         run: |
