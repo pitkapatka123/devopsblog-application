@@ -91,7 +91,7 @@ jobs:
           args: >
             -i
             .spec.template.spec.containers[0].image = strenv(IMAGE_REF)
-            gitops/dev/devopsblog-dev/deployment.yaml
+            devopsblog-gitops/dev/devopsblog-dev/deployment.yaml
 
       - uses: peter-evans/create-pull-request@v6
         with:
