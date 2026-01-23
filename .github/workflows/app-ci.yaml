@@ -89,6 +89,7 @@ jobs:
           valueFile: gitops/dev/devopsblog-dev/deployment.yaml
           propertyPath: "spec.template.spec.containers[0].image"
           value: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}@${{ steps.buildpush.outputs.digest }}
+          commitChange: false
 
 
       - name: Create PR
