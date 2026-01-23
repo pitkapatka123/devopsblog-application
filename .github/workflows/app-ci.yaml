@@ -59,7 +59,7 @@ jobs:
             echo "DIGEST=${{ steps.buildpush.outputs.digest }}"
             echo "IMAGE=${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}@${{ steps.buildpush.outputs.digest }}"
 
-      - name: Load GitHubApp creds from aws
+      - name: get GitHubApp creds from aws
         id: ghapp
         run: |
           aws secretsmanager get-secret-value --region "${AWS_REGION}" --secret-id github/devopsblog/github-app --query SecretString --output text > ghapp.json
@@ -83,7 +83,7 @@ jobs:
           path: gitops
           token: ${{ steps.apptoken.outputs.token }}
 
-      - name: Patch dev deployment (yq via container)
+      - name: modify dev deployment with the newly built image (yq via container)
         uses: docker://mikefarah/yq:4
         env:
           IMAGE_REF: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}@${{ steps.buildpush.outputs.digest }}
