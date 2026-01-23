@@ -28,7 +28,8 @@ Skills:
 And thanks to the guys at Telerik:
 
 - Everyday Git usage
-- GHA CI/CD pipelines (inc. yaml files)
+- CI/CD pipelines
+- GitHub Actions (inc. yaml files)
 - SDLC
 - Kubernetes intermediate
 - AWS beginner
