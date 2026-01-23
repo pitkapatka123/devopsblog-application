@@ -25,7 +25,7 @@ Skills:
 - Basic DB knowledge
 - Beginner Networking 
 
-And thanks to the guys at Telerik:
+And thanks to my mentors at Telerik:
 
 - Everyday Git usage
 - CI/CD pipelines
