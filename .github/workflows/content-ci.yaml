@@ -25,7 +25,38 @@ jobs:
         with:
           role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
           aws-region: eu-central-1
+          
+      - name: get GitHubApp creds from aws
+        id: ghapp
+        run: |
+          aws secretsmanager get-secret-value --region "${AWS_REGION}" --secret-id github/devopsblog/github-app --query SecretString --output text > ghapp.json
+          echo "app_id=$(jq -r .app_id ghapp.json)" >> "$GITHUB_OUTPUT"
+          echo "installation_id=$(jq -r .installation_id ghapp.json)" >> "$GITHUB_OUTPUT"
+          echo "private_key<<EOF" >> "$GITHUB_OUTPUT"
+          jq -r .private_key_pem ghapp.json >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - uses: tibdex/github-app-token@v2
+        id: apptoken
+        with:
+          app_id: ${{ steps.ghapp.outputs.app_id }}
+          installation_id: ${{ steps.ghapp.outputs.installation_id }}
+          private_key: ${{ steps.ghapp.outputs.private_key }}
 
       - name: Upload content to S3 (dev)
         run: |
           aws s3 sync content/ s3://${{ vars.CONTENT_BUCKET }}/dev/ --delete
+
+      - name: Trigger GitOps content validation
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.apptoken.outputs.token }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: "valentindodovu51",
+              repo: "devopsblog-gitops",
+              workflow_id: "content_validation.yaml",
+              ref: "master",
+            });
+
+
