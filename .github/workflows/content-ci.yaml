@@ -34,7 +34,7 @@ jobs:
         uses: aws-actions/aws-secretsmanager-get-secrets@v2
         with:
           secret-ids: |
-            github/devopsblog/github-app, ghapp
+            ghapp, github/devopsblog/github-app
           name-transformation: lowercase
           parse-json-secrets: true
 
