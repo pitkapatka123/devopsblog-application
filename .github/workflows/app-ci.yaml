@@ -61,9 +61,10 @@ jobs:
             echo "IMAGE=${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}@${{ steps.buildpush.outputs.digest }}"
 
       - name: Get github secret from AWS
-        uses: aws-actions/aws-secretsmanager-get-secrets@v1
+        uses: aws-actions/aws-secretsmanager-get-secrets@v2
         with:
-          secret-ids: github/devopsblog/github-app, gh_app
+          secret-ids: |
+            ghapp, github/devopsblog/github-app
           name-transformation: lowercase
           parse-json-secrets: true
 
@@ -71,8 +72,8 @@ jobs:
         id: apptoken
         uses: actions/create-github-app-token@v2
         with:
-          app-id: ${{ env.gh_app_app_id }}
-          private-key: ${{ env.gh_app_private_key_pem }}
+          app-id: ${{ env.ghapp_app_id }}
+          private-key: ${{ env.ghapp_private_key_pem }}
           owner: valentindodovu51
           repositories: devopsblog-gitops
 
