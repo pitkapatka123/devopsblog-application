@@ -63,8 +63,7 @@ jobs:
       - name: Get github secret from AWS
         uses: aws-actions/aws-secretsmanager-get-secrets@v2
         with:
-          secret-ids: |
-            github/devopsblog/github-app, ghapp
+          secret-ids: github/devopsblog/github-app, ghapp
           name-transformation: lowercase
           parse-json-secrets: true
 
