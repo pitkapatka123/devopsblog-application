@@ -13,7 +13,6 @@ permissions:
 
 jobs:
     upload-content:
-      permissions: write-all
       name: Upload blog content to S3
       runs-on: ubuntu-latest
       env:
@@ -31,36 +30,26 @@ jobs:
           role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ env.AWS_REGION }}
           
-      - name: get GitHubApp creds from aws
-        id: ghapp
-        run: |
-          aws secretsmanager get-secret-value --region "${AWS_REGION}" --secret-id github/devopsblog/github-app --query SecretString --output text > ghapp.json
-          echo "app_id=$(jq -r .app_id ghapp.json)" >> "$GITHUB_OUTPUT"
-          echo "installation_id=$(jq -r .installation_id ghapp.json)" >> "$GITHUB_OUTPUT"
-          echo "private_key<<EOF" >> "$GITHUB_OUTPUT"
-          jq -r .private_key_pem ghapp.json >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
+      - name: Get github secret from
+        uses: aws-actions/aws-secretsmanager-get-secrets@v2
+        with:
+          secret-ids: |
+            github/devopsblog/github-app, ghapp
+          name-transformation: lowercase
+          parse-json-secrets: true
 
       - name: create GitHubApp token
         id: apptoken
         uses: actions/create-github-app-token@v2
         with:
-          app-id: ${{ steps.ghapp.outputs.app_id }}
-          private-key: ${{ steps.ghapp.outputs.private_key }}
+          app-id: ${{ env.ghapp_app_id }}
+          private-key: ${{ env.ghapp_private_key_pem }}
           owner: valentindodovu51
           repositories: devopsblog-gitops
 
       - name: Upload content to S3 (dev)
         run: |
           aws s3 sync content/ s3://${{ vars.CONTENT_BUCKET }}/dev/ --delete
-
-      - name: Debug token can see gitops repo
-        env:
-          GH_TOKEN: ${{ steps.apptoken.outputs.token }}
-        run: |
-          curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" \
-            https://api.github.com/repos/valentindodovu51/devopsblog-gitops | jq -r .full_name
-
 
       - name: Trigger GitOps content validation
         uses: actions/github-script@v7

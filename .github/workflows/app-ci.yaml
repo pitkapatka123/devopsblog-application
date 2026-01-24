@@ -1,4 +1,4 @@
-name: ci
+name: app-ci
 
 on:
   push:
@@ -60,22 +60,22 @@ jobs:
             echo "DIGEST=${{ steps.buildpush.outputs.digest }}"
             echo "IMAGE=${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}@${{ steps.buildpush.outputs.digest }}"
 
-      - name: get GitHubApp creds from aws
-        id: ghapp
-        run: |
-          aws secretsmanager get-secret-value --region "${AWS_REGION}" --secret-id github/devopsblog/github-app --query SecretString --output text > ghapp.json
-          echo "app_id=$(jq -r .app_id ghapp.json)" >> "$GITHUB_OUTPUT"
-          echo "installation_id=$(jq -r .installation_id ghapp.json)" >> "$GITHUB_OUTPUT"
-          echo "private_key<<EOF" >> "$GITHUB_OUTPUT"
-          jq -r .private_key_pem ghapp.json >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
-
-      - uses: tibdex/github-app-token@v2
-        id: apptoken
+      - name: Get github secret from AWS
+        uses: aws-actions/aws-secretsmanager-get-secrets@v2
         with:
-          app_id: ${{ steps.ghapp.outputs.app_id }}
-          installation_id: ${{ steps.ghapp.outputs.installation_id }}
-          private_key: ${{ steps.ghapp.outputs.private_key }}
+          secret-ids: |
+            github/devopsblog/github-app, ghapp
+          name-transformation: lowercase
+          parse-json-secrets: true
+
+      - name: create GitHubApp token
+        id: apptoken
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ env.ghapp_app_id }}
+          private-key: ${{ env.ghapp_private_key_pem }}
+          owner: valentindodovu51
+          repositories: devopsblog-gitops
 
       - uses: actions/checkout@v4
         with:
