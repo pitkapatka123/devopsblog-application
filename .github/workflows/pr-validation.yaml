@@ -55,7 +55,7 @@ jobs:
 
 
       - name: Sonar scan step
-        uses: SonarSource/sonarcloud-github-action@v7
+        uses: SonarSource/sonarcloud-github-action@v3
         env:
           SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
         with:
