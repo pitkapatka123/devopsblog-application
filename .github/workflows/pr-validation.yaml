@@ -5,7 +5,7 @@ on:
     branches: ["main"]
     paths-ignore:
       - "content/**"
-      - ".github/workflows/content-ci.yaml"
+      - ".github/workflows/**"
 
 permissions:
   contents: read

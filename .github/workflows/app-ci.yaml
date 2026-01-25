@@ -110,6 +110,7 @@ jobs:
           ref: master
           path: gitops
           token: ${{ steps.apptoken.outputs.token }}
+          persist-credentials: false
 
 
 
