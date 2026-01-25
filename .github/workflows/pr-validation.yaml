@@ -77,14 +77,13 @@ jobs:
 
 
 
-      - name: Build image (no push)
+      - name: Build image without pushing
         uses: docker/build-push-action@v6
         with:
-          context: .
-          push: false
-          tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-          outputs: type=docker
-
+            context: .
+            push: false
+            tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            outputs: type=docker
 
 
       - name: Snyk SCA (Python 3.12) - fail on High
@@ -104,15 +103,6 @@ jobs:
           image: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
           args: --severity-threshold=high
 
-
-
-      - name: Build image without pushing
-        uses: docker/build-push-action@v6
-        with:
-            context: .
-            push: false
-            tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-            outputs: type=docker
 
 
 
