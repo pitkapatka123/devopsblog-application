@@ -1,20 +1,18 @@
 name: app-ci
 
 on:
-  push:
-    paths-ignore:
-      - 'content/**'
-      - '.github/workflows/content-ci.yaml'
-    branches: [ "main" ]
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["pr-validation"]
+    types: [completed]
 
 permissions:
   contents: read
   id-token: write
+  actions: read
 
 jobs:
-  build-and-push:
-    name: build and pushe the image to ECR
+  promote-artifact-to-ecr-and-gitops:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     env:
@@ -23,44 +21,68 @@ jobs:
       ECR_REPO: "devops-blog"
 
     steps:
-      - name: checkout repository
-        uses: actions/checkout@v6
+      - name: Download PR image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pr-image
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: pr-image
 
-      - name: Show context
+
+
+      - name: Show .tar contents
         run: |
-          echo "repo: $GITHUB_REPOSITORY"
-          echo "sha:  $GITHUB_SHA"
+          ls -la pr-image
+          echo "image_name: $(cat pr-image/image_name.txt)"
+          echo "image_tag:  $(cat pr-image/image_tag.txt)"
+          echo "pr_head_sha:$(cat pr-image/pr_head_sha.txt)"
+          echo "pr_number:  $(cat pr-image/pr_number.txt)"
 
-      - name: debug role target
-        run: echo "ROLE=${{ vars.AWS_ROLE_TO_ASSUME }}"
 
-      - name: configure AWS credentials
+
+      - name: Load image from .tar
+        id: load
+        run: |
+          echo "image_name=$(cat pr-image/image_name.txt)" >> "$GITHUB_OUTPUT"
+          echo "image_tag=$(cat pr-image/image_tag.txt)" >> "$GITHUB_OUTPUT"
+          echo "pr_head_sha=$(cat pr-image/pr_head_sha.txt)" >> "$GITHUB_OUTPUT"
+          docker load -i pr-image/image.tar
+
+
+
+      - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: verify AWS identity
-        run: aws sts get-caller-identity
 
-      - name: login to ECR
+
+      - name: Login to ECR
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: build and pushw
-        id: buildpush
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: |
-            ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}:sha-${{ github.sha }}
-            
-      - name: print digest hash
-        run: |
-            echo "DIGEST=${{ steps.buildpush.outputs.digest }}"
-            echo "IMAGE=${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}@${{ steps.buildpush.outputs.digest }}"
 
-      - name: Get github secret from AWS
+
+      - name: Push to ECR 
+        id: push
+        run: |
+          ECR_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}"
+          TAG="sha-${{ steps.load.outputs.pr_head_sha }}"
+
+          docker tag "${{ steps.load.outputs.image_name }}:${{ steps.load.outputs.image_tag }}" "${ECR_URI}:${TAG}"
+          docker push "${ECR_URI}:${TAG}"
+
+          REPO_DIGEST="$(docker inspect --format='{{index .RepoDigests 0}}' "${ECR_URI}:${TAG}")"
+          DIGEST="${REPO_DIGEST#*@}"
+
+          echo "ecr_uri=$ECR_URI" >> "$GITHUB_OUTPUT"
+          echo "digest=$DIGEST" >> "$GITHUB_OUTPUT"
+          echo "IMAGE=${ECR_URI}@${DIGEST}"
+
+
+
+      - name: Get GitHub App secret from AWS
         uses: aws-actions/aws-secretsmanager-get-secrets@v2
         with:
           secret-ids: |
@@ -68,7 +90,9 @@ jobs:
           name-transformation: lowercase
           parse-json-secrets: true
 
-      - name: create GitHubApp token
+
+
+      - name: Create GitHub App token
         id: apptoken
         uses: actions/create-github-app-token@v2
         with:
@@ -77,30 +101,39 @@ jobs:
           owner: valentindodovu51
           repositories: devopsblog-gitops
 
-      - uses: actions/checkout@v4
+
+
+      - name: Checkout GitOps repo
+        uses: actions/checkout@v6
         with:
           repository: valentindodovu51/devopsblog-gitops
           ref: master
           path: gitops
           token: ${{ steps.apptoken.outputs.token }}
 
-      - name: modify dev deployment with the newly built image
+
+
+      - name: Update dev deployment image with digest as tag
         uses: fjogeleit/yaml-update-action@main
         with:
           valueFile: gitops/dev/devopsblog-dev/deployment.yaml
           propertyPath: "spec.template.spec.containers[0].image"
-          value: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}@${{ steps.buildpush.outputs.digest }}
+          value: ${{ steps.push.outputs.ecr_uri }}@${{ steps.push.outputs.digest }}
           commitChange: false
 
 
-      - name: Create PR
+          
+      - name: Create PR to gitops repo
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ steps.apptoken.outputs.token }}
           path: gitops
           base: master
-          branch: ci/dev-${{ github.sha }}
+          branch: ci/dev-${{ steps.load.outputs.pr_head_sha }}
           delete-branch: true
-          title: "dev: deploy ${{ github.sha }} (digest)"
-          body: "Image: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}@${{ steps.buildpush.outputs.digest }}"
-          commit-message: "dev: deploy ${{ github.sha }} (digest)"
+          title: "dev: deploy ${{ steps.load.outputs.pr_head_sha }} (digest)"
+          body: |
+            Promoting PR-built artifact bytes (GitHub Actions artifact → ECR).
+            Image: ${{ steps.push.outputs.ecr_uri }}@${{ steps.push.outputs.digest }}
+            Tag:   sha-${{ steps.load.outputs.pr_head_sha }}
+          commit-message: "dev: deploy ${{ steps.load.outputs.pr_head_sha }} (digest)"

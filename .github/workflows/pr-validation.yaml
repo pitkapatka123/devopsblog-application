@@ -1,0 +1,144 @@
+name: pr-validation
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths-ignore:
+      - "content/**"
+      - ".github/workflows/content-ci.yaml"
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
+jobs:
+  validate-and-package-image:
+    runs-on: ubuntu-latest
+
+    env:
+      IMAGE_NAME: devops-blog
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      IMAGE_TAG: pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
+      AWS_REGION: eu-central-1
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        
+
+
+      - name: get AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+
+
+      - name: Load scanner tokens
+        uses: aws-actions/aws-secretsmanager-get-secrets@v2
+        with:
+          secret-ids: |
+            github/devopsblog/scanners
+          name-transformation: uppercase
+          parse-json-secrets: true
+
+
+
+      - name: Export tokens
+        run: |
+          echo "SONAR_TOKEN=$GITHUB_DEVOPSBLOG_SCANNERS_SONAR-GHA-TOKEN" >> $GITHUB_ENV
+          echo "SNYK_TOKEN=$GITHUB_DEVOPSBLOG_SCANNERS_SNYK-GHA-TOKEN"   >> $GITHUB_ENV
+
+
+
+      - name: Sonar scan step
+        uses: SonarSource/sonarqube-scan-action@v7
+        env:
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
+        with:
+          args: >
+            -Dsonar.organization=${{ vars.SONAR_ORG_KEY }}
+            -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
+            -Dsonar.sources=.
+            -Dsonar.exclusions=content/**,.github/**,**/*.md,.dockerignore
+
+
+
+      - name: Pass sonar quality gate
+        uses: SonarSource/sonarqube-quality-gate-action@v1.1.0
+        env:
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
+        timeout-minutes: 5
+
+
+
+      - name: Build image (no push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          outputs: type=docker
+
+
+
+      - name: Snyk SCA (Python 3.12) - fail on High
+        uses: snyk/actions/python-3.12@master
+        env:
+          SNYK_TOKEN: ${{ env.SNYK_TOKEN }}
+        with:
+          args: --all-projects --severity-threshold=high
+
+
+
+      - name: Snyk Container Scan - fail on High
+        uses: snyk/actions/docker@master
+        env:
+          SNYK_TOKEN: ${{ env.SNYK_TOKEN }}
+        with:
+          image: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          args: --severity-threshold=high
+
+
+
+      - name: Build image without pushing
+        uses: docker/build-push-action@v6
+        with:
+            context: .
+            push: false
+            tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            outputs: type=docker
+
+
+
+      - name: Attach image to workflow run via .tar
+        run: |
+          docker save "${IMAGE_NAME}:${IMAGE_TAG}" -o image.tar
+
+
+
+      - name: Write metadata
+        run: |
+          echo "${IMAGE_NAME}" > image_name.txt
+          echo "${IMAGE_TAG}"  > image_tag.txt
+          echo "${HEAD_SHA}"   > pr_head_sha.txt
+          echo "${PR_NUMBER}"  > pr_number.txt
+
+
+
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-image
+          path: |
+            image.tar
+            image_name.txt
+            image_tag.txt
+            pr_head_sha.txt
+            pr_number.txt
+          retention-days: 3
