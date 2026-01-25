@@ -55,10 +55,9 @@ jobs:
 
 
       - name: Sonar scan step
-        uses: SonarSource/sonarqube-scan-action@v7
+        uses: SonarSource/sonarcloud-github-action@v
         env:
           SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
-          SONAR_HOST_URL: https://sonarcloud.io
         with:
           args: >
             -Dsonar.organization=${{ vars.SONAR_ORG_KEY }}
