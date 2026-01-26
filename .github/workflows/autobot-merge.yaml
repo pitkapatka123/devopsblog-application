@@ -11,9 +11,42 @@ permissions:
 jobs:
   enable-auto-merge:
     runs-on: ubuntu-latest
+    env:
+      AWS_REGION: eu-central-1
     steps:
-      - name: Enable auto-merge for the current PR
+
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+
+
+      - name: Get GitHub App secret from AWS
+        uses: aws-actions/aws-secretsmanager-get-secrets@v2
+        with:
+          secret-ids: |
+            ghapp, github/devopsblog/github-app
+          name-transformation: lowercase
+          parse-json-secrets: true
+
+
+
+      - name: Create GitHub App token
+        id: apptoken
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ env.ghapp_app_id }}
+          private-key: ${{ env.ghapp_private_key_pem }}
+          owner: valentindodovu51
+          repositories: devopsblog-gitops
+
+
+
+      - name: Enable auto-merge
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.apptoken.outputs.token }}
           PR_URL: ${{ github.event.pull_request.html_url }}
         run: gh pr merge --auto --merge "$PR_URL"
