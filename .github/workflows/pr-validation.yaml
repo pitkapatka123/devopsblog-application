@@ -15,18 +15,15 @@ permissions:
 jobs:
   validate-and-package-image:
     runs-on: ubuntu-latest
-
     env:
-      IMAGE_NAME: devops-blog
-      PR_NUMBER: ${{ github.event.pull_request.number }}
-      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-      IMAGE_TAG: pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
       AWS_REGION: eu-central-1
+      IMAGE_NAME: devops-blog
+      IMAGE_TAG: SAST-build
 
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-        
+      
 
 
       - name: get AWS credentials
@@ -77,11 +74,12 @@ jobs:
 
 
 
-      - name: Build image without pushing
+      - name: Build image to scan
         uses: docker/build-push-action@v6
         with:
             context: .
             push: false
+            load: true
             tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
             outputs: type=docker
 
@@ -103,33 +101,3 @@ jobs:
         with:
           image: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
           args: --severity-threshold=high
-
-
-
-
-      - name: Attach image to workflow run via .tar
-        run: |
-          docker save "${IMAGE_NAME}:${IMAGE_TAG}" -o image.tar
-
-
-
-      - name: Write metadata
-        run: |
-          echo "${IMAGE_NAME}" > image_name.txt
-          echo "${IMAGE_TAG}"  > image_tag.txt
-          echo "${HEAD_SHA}"   > pr_head_sha.txt
-          echo "${PR_NUMBER}"  > pr_number.txt
-
-
-
-      - name: Upload image artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: pr-image
-          path: |
-            image.tar
-            image_name.txt
-            image_tag.txt
-            pr_head_sha.txt
-            pr_number.txt
-          retention-days: 3

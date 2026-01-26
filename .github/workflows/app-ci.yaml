@@ -1,9 +1,12 @@
 name: app-ci
 
 on:
-  workflow_run:
-    workflows: ["pr-validation"]
-    types: [completed]
+  push:
+    branches: ["main"]
+    paths-ignore:
+      - "content/**"
+      - ".github/workflows/**"
+      - "README.md"
 
 permissions:
   contents: read
@@ -11,44 +14,21 @@ permissions:
   actions: read
 
 jobs:
-  promote-artifact-to-ecr-and-gitops:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+  build-push-image-to-ecr-and-gitops:
     runs-on: ubuntu-latest
 
     env:
       AWS_REGION: eu-central-1
       AWS_ACCOUNT_ID: "648835056994"
       ECR_REPO: "devops-blog"
+      IMAGE_NAME: devops-blog
+      IMAGE_TAG: sha-${{ github.sha }}
 
+        
     steps:
-      - name: Download PR image artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: pr-image
-          run-id: ${{ github.event.workflow_run.id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path: pr-image
 
-
-
-      - name: Show .tar contents
-        run: |
-          ls -la pr-image
-          echo "image_name: $(cat pr-image/image_name.txt)"
-          echo "image_tag:  $(cat pr-image/image_tag.txt)"
-          echo "pr_head_sha:$(cat pr-image/pr_head_sha.txt)"
-          echo "pr_number:  $(cat pr-image/pr_number.txt)"
-
-
-
-      - name: Load image from .tar
-        id: load
-        run: |
-          echo "image_name=$(cat pr-image/image_name.txt)" >> "$GITHUB_OUTPUT"
-          echo "image_tag=$(cat pr-image/image_tag.txt)" >> "$GITHUB_OUTPUT"
-          echo "pr_head_sha=$(cat pr-image/pr_head_sha.txt)" >> "$GITHUB_OUTPUT"
-          docker load -i pr-image/image.tar
-
+      - name: Checkout
+        uses: actions/checkout@v6
 
 
       - name: Configure AWS credentials (OIDC)
@@ -64,22 +44,16 @@ jobs:
 
 
 
-      - name: Push to ECR 
-        id: push
-        run: |
-          ECR_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}"
-          TAG="sha-${{ steps.load.outputs.pr_head_sha }}"
-
-          docker tag "${{ steps.load.outputs.image_name }}:${{ steps.load.outputs.image_tag }}" "${ECR_URI}:${TAG}"
-          docker push "${ECR_URI}:${TAG}"
-
-          REPO_DIGEST="$(docker inspect --format='{{index .RepoDigests 0}}' "${ECR_URI}:${TAG}")"
-          DIGEST="${REPO_DIGEST#*@}"
-
-          echo "ecr_uri=$ECR_URI" >> "$GITHUB_OUTPUT"
-          echo "digest=$DIGEST" >> "$GITHUB_OUTPUT"
-          echo "IMAGE=${ECR_URI}@${DIGEST}"
-
+      - name: Build image
+        id: build-push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }}
+            ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}:latest
+          outputs: digest
 
 
       - name: Get GitHub App secret from AWS
@@ -119,9 +93,8 @@ jobs:
         with:
           valueFile: gitops/dev/devopsblog-dev/deployment.yaml
           propertyPath: "spec.template.spec.containers[0].image"
-          value: ${{ steps.push.outputs.ecr_uri }}@${{ steps.push.outputs.digest }}
+          value: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}@${{ steps.build-push.outputs.digest }}
           commitChange: false
-
 
           
       - name: Create PR to gitops repo
@@ -130,11 +103,11 @@ jobs:
           token: ${{ steps.apptoken.outputs.token }}
           path: gitops
           base: master
-          branch: ci/dev-${{ steps.load.outputs.pr_head_sha }}
+          branch: ci/dev-deploy
           delete-branch: true
-          title: "dev: deploy ${{ steps.load.outputs.pr_head_sha }} (digest)"
+          title: "dev: deploy ${{ github.sha }} (digest)"
           body: |
-            Promoting PR-built artifact bytes (GitHub Actions artifact → ECR).
-            Image: ${{ steps.push.outputs.ecr_uri }}@${{ steps.push.outputs.digest }}
-            Tag:   sha-${{ steps.load.outputs.pr_head_sha }}
-          commit-message: "dev: deploy ${{ steps.load.outputs.pr_head_sha }} (digest)"
+            Promoting Main Branch Build to Dev.
+            Image: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}@${{ steps.build-push.outputs.digest }}
+            Tag:   ${{ env.IMAGE_TAG }}
+          commit-message: "dev: deploy ${{ github.sha }}"
