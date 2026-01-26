@@ -7,6 +7,11 @@ on:
       - "content/**"
       - ".github/workflows/**"
 
+
+concurrency:
+  group: pr-validation-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   pull-requests: write
