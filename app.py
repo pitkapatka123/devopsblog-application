@@ -14,26 +14,30 @@ def add_security_headers(response):
     """
     Add security headers to every response to fix ZAP alerts.
     """
-    
-    response.headers['Content-Security-Policy'] = "default-src 'self'"
-
-
-    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
-
+ 
+    csp = (
+        "default-src 'self'; "
+        "form-action 'self'; "
+        "frame-ancestors 'self'; "
+        "base-uri 'self';"
+    )
+    response.headers['Content-Security-Policy'] = csp
 
     response.headers['X-Frame-Options'] = 'SAMEORIGIN'
 
-
     response.headers['X-Content-Type-Options'] = 'nosniff'
 
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
 
     response.headers['Permissions-Policy'] = "geolocation=(), microphone=(), camera=()"
 
-
     response.headers['Cross-Origin-Resource-Policy'] = 'same-origin'
 
-    return response
+    response.headers['Cross-Origin-Embedder-Policy'] = 'require-corp'
+    
+    response.headers['Cross-Origin-Opener-Policy'] = 'same-origin'
 
+    return response
 
 @app.errorhandler(500)
 def internal_server_error(e):
