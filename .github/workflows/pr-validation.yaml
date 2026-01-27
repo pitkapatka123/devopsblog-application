@@ -67,6 +67,7 @@ jobs:
             -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
             -Dsonar.sources=.
             -Dsonar.exclusions=content/**,.github/**,**/*.md,.dockerignore
+            -Dsonar.coverage.exclusions=** # <--- ADD THIS LINE
 
 
 
