@@ -14,7 +14,7 @@ permissions:
 jobs:
     upload-content:
       name: Upload blog content to S3
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-24.04
       env:
         AWS_REGION: eu-central-1
         AWS_ACCOUNT_ID: "648835056994"

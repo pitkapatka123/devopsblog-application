@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   build-push-image-to-ecr-and-gitops:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     env:
       AWS_REGION: eu-central-1
