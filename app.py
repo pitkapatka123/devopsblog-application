@@ -7,6 +7,45 @@ app = Flask(__name__)
 provider = S3ContentProvider()
 
 
+# --- START OF SECURITY FIXES ---
+
+@app.after_request
+def add_security_headers(response):
+    """
+    Add security headers to every response to fix ZAP alerts.
+    """
+    
+    response.headers['Content-Security-Policy'] = "default-src 'self'"
+
+
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+
+
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+
+
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+
+
+    response.headers['Permissions-Policy'] = "geolocation=(), microphone=(), camera=()"
+
+
+    response.headers['Cross-Origin-Resource-Policy'] = 'same-origin'
+
+    return response
+
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return "500 Internal Server Error: Something went wrong.", 500
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return "404 Page Not Found", 404
+
+
+
 def _date_sort_key(p):
     v = p.meta.get("date")
     if isinstance(v, datetime.date):
