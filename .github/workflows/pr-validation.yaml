@@ -6,6 +6,8 @@ on:
     paths-ignore:
       - "content/**"
       - ".github/workflows/**"
+      - "README.md"
+      - "docs/**"
 
 
 concurrency:
