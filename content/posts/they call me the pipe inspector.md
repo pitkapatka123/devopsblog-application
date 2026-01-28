@@ -19,4 +19,4 @@ Done and DONE!
 Took me a solid 30+ hours of work combined. Im glad that I had the free time.
 Anyway, im writing this post so that I have the opportunity to check the content pipeline :D . I'll tell you how that goes next.
 
-bing bong.
+bing bong
