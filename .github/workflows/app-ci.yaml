@@ -7,6 +7,7 @@ on:
       - "content/**"
       - ".github/workflows/**"
       - "README.md"
+      - ".gitignore"
       - "docs/**"
 concurrency:
   group: gitops-dev-validation
