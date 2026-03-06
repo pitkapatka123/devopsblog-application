@@ -23,7 +23,7 @@ jobs:
   validate-and-package-image:
     runs-on: ubuntu-24.04
     env:
-      AWS_REGION: eu-central-1
+      AWS_REGION: eu-west-1
       IMAGE_NAME: devops-blog
       IMAGE_TAG: SAST-build
 

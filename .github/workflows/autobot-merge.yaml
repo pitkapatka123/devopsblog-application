@@ -13,7 +13,7 @@ jobs:
   enable-auto-merge:
     runs-on: ubuntu-24.04
     env:
-      AWS_REGION: eu-central-1
+      AWS_REGION: eu-west-1
     steps:
 
 
@@ -41,7 +41,7 @@ jobs:
         with:
           app-id: ${{ env.ghapp_app_id }}
           private-key: ${{ env.ghapp_private_key_pem }}
-          owner: valentindodovu51
+          owner: pitkapatka123
           repositories: devopsblog-application
 
 

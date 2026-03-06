@@ -16,8 +16,8 @@ jobs:
       name: Upload blog content to S3
       runs-on: ubuntu-24.04
       env:
-        AWS_REGION: eu-central-1
-        AWS_ACCOUNT_ID: "648835056994"
+        AWS_REGION: eu-west-1
+        AWS_ACCOUNT_ID: "944765969336"
         ECR_REPO: "devops-blog"
 
       steps:
@@ -50,7 +50,7 @@ jobs:
         with:
           app-id: ${{ env.ghapp_app_id }}
           private-key: ${{ env.ghapp_private_key_pem }}
-          owner: valentindodovu51
+          owner: pitkapatka123
           repositories: devopsblog-gitops
 
 
@@ -67,7 +67,7 @@ jobs:
           github-token: ${{ steps.apptoken.outputs.token }}
           script: |
             await github.rest.actions.createWorkflowDispatch({
-              owner: "valentindodovu51",
+              owner: "pitkapatka123",
               repo: "devopsblog-gitops",
               workflow_id: "content_validation.yaml",
               ref: "master",
