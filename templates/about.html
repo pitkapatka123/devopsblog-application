@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block content %}
+<article class="about-page">
+
+  <!-- ── Terminal Boot Sequence ── -->
+  <div class="boot-terminal">
+    <div class="terminal-header">
+      <span class="terminal-dot red"></span>
+      <span class="terminal-dot yellow"></span>
+      <span class="terminal-dot green"></span>
+      <span class="terminal-title">valentin@devops:~</span>
+    </div>
+    <div class="terminal-body">
+      <p class="boot-line line-1"><span class="prompt">&gt;</span> initializing valentin_dodov...</p>
+      <p class="boot-line line-2"><span class="prompt">&gt;</span> loading infrastructure.......... <span class="bar">[##########]</span> <span class="ok">100%</span></p>
+      <p class="boot-line line-3"><span class="prompt">&gt;</span> loading ambition................ <span class="bar">[##########]</span> <span class="warn">MAXED OUT</span></p>
+      <p class="boot-line line-4"><span class="prompt">&gt;</span> loading determination........... <span class="bar">[##########]</span> <span class="ok">RELENTLESS</span></p>
+      <p class="boot-line line-5"><span class="prompt">&gt;</span> loading sense_of_humour......... <span class="bar">[##########]</span> <span class="ok">ACQUIRED</span> <span class="dim">(warranty void)</span></p>
+      <p class="boot-line line-6"><span class="prompt">&gt;</span> loading passion................. <span class="bar">[##########]</span> <span class="err">OVERFLOW ERROR</span></p>
+      <p class="boot-line line-7"><span class="prompt">&gt;</span> <span class="ok">system operational.</span></p>
+    </div>
+  </div>
+
+  <!-- ── Bio ── -->
+  <section class="about-bio">
+    <h1 class="glitch-name" data-text="Valentin Dodov">Valentin Dodov</h1>
+    <p class="bio-tagline">25 &middot; Junior DevOps &middot; Employed full-time &middot; Building things that scale</p>
+  </section>
+
+  <!-- ── Status Dashboard ── -->
+  <section class="status-dashboard">
+    <h2 class="dash-title">system metrics</h2>
+    <div class="dash-grid">
+      <div class="dash-row">
+        <span class="dash-label">Logs</span>
+        <span class="dash-value dash-warn">EXPENSIVE</span>
+      </div>
+      <div class="dash-row">
+        <span class="dash-label">Dockerfile size</span>
+        <span class="dash-value dash-err">5 GB</span>
+      </div>
+      <div class="dash-row">
+        <span class="dash-label">ArgoCD</span>
+        <span class="dash-value dash-err">DRIFTED</span>
+      </div>
+      <div class="dash-row">
+        <span class="dash-label">Stress</span>
+        <span class="dash-value dash-warn">99.99% uptime</span>
+      </div>
+      <div class="dash-row">
+        <span class="dash-label">Terraform State</span>
+        <span class="dash-value dash-err">DRIFT DETECTED</span>
+      </div>
+      <div class="dash-row">
+        <span class="dash-label">Cluster</span>
+        <span class="dash-value dash-warn">RUNNING HOT</span>
+      </div>
+      <div class="dash-row">
+        <span class="dash-label">Goals</span>
+        <span class="dash-value dash-ok">LOCKED IN</span>
+      </div>
+      <div class="dash-row">
+        <span class="dash-label">Pipeline</span>
+        <span class="dash-value dash-ok">ALL GREEN</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Skills as kubectl ── -->
+  <section class="kubectl-section">
+    <p class="kubectl-cmd">$ kubectl get pods -n valentin-skills</p>
+    <table class="kubectl-table">
+      <thead>
+        <tr>
+          <th>NAME</th>
+          <th>READY</th>
+          <th>STATUS</th>
+          <th>AGE</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>azure-admin-az104</td>
+          <td>1/1</td>
+          <td class="status-running">Running</td>
+          <td>2y</td>
+        </tr>
+        <tr>
+          <td>incident-management</td>
+          <td>1/1</td>
+          <td class="status-running">Running</td>
+          <td>2y</td>
+        </tr>
+        <tr>
+          <td>docker</td>
+          <td>1/1</td>
+          <td class="status-running">Running</td>
+          <td>1y</td>
+        </tr>
+        <tr>
+          <td>ci-cd-pipelines</td>
+          <td>1/1</td>
+          <td class="status-running">Running</td>
+          <td>8mo</td>
+        </tr>
+        <tr>
+          <td>kubernetes</td>
+          <td>1/1</td>
+          <td class="status-running">Running</td>
+          <td>6mo</td>
+        </tr>
+        <tr>
+          <td>terraform</td>
+          <td>1/1</td>
+          <td class="status-running">Running</td>
+          <td>6mo</td>
+        </tr>
+        <tr>
+          <td>argocd-gitops</td>
+          <td>1/1</td>
+          <td class="status-running">Running</td>
+          <td>6mo</td>
+        </tr>
+        <tr>
+          <td>github-actions</td>
+          <td>1/1</td>
+          <td class="status-running">Running</td>
+          <td>6mo</td>
+        </tr>
+        <tr>
+          <td>devsecops</td>
+          <td>0/1</td>
+          <td class="status-creating">ContainerCreating</td>
+          <td>3mo</td>
+        </tr>
+        <tr>
+          <td>aws</td>
+          <td>0/1</td>
+          <td class="status-pending">Pending</td>
+          <td>--</td>
+        </tr>
+        <tr>
+          <td>networking-deep-dive</td>
+          <td>0/1</td>
+          <td class="status-pending">Pending</td>
+          <td>--</td>
+        </tr>
+        <tr>
+          <td>sleep</td>
+          <td>0/1</td>
+          <td class="status-crash">CrashLoopBackOff</td>
+          <td>25y</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── Interests ── -->
+  <section class="about-interests">
+    <h2>Interests</h2>
+    <ul>
+      <li>DevOps (obviously)</li>
+      <li>German cars <span class="dim">&mdash; the good ones, not the ones that start with </span><span class="redacted">B</span><span class="dim"> and end with </span><span class="redacted">MW</span>
+        <span class="classified-footnote">CLASSIFIED — fine, it's BMW. There, I said it.</span>
+      </li>
+      <li>Politics</li>
+      <li>Geography and History</li>
+    </ul>
+    <p class="interests-note">Cannot think of anything else but trust me we can have a good talk about a lot of things.</p>
+  </section>
+
+  <!-- ── Fears ── -->
+  <section class="about-fears">
+    <p>Fears: <span class="fear-text">unemployment</span></p>
+  </section>
+
+  <!-- ── Credits ── -->
+  <section class="about-credits">
+    <p class="dim">Thanks to my mentors at Telerik Academy for levelling up the stack.</p>
+  </section>
+
+</article>
+{% endblock %}
