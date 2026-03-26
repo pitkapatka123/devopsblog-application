@@ -86,10 +86,7 @@ def post_detail(slug):
 
 @app.route("/about")
 def about_page():
-    page = provider.get_page("about")
-    if not page:
-        abort(404)
-    return render_template("page.html", page=page)
+    return render_template("about.html")
 
 
 @app.route("/contact")
