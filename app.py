@@ -17,6 +17,8 @@ def add_security_headers(response):
  
     csp = (
         "default-src 'self'; "
+        "style-src 'self' https://fonts.googleapis.com; "
+        "font-src 'self' https://fonts.gstatic.com; "
         "form-action 'self'; "
         "frame-ancestors 'self'; "
         "base-uri 'self';"
@@ -33,7 +35,7 @@ def add_security_headers(response):
 
     response.headers['Cross-Origin-Resource-Policy'] = 'same-origin'
 
-    response.headers['Cross-Origin-Embedder-Policy'] = 'require-corp'
+    response.headers['Cross-Origin-Embedder-Policy'] = 'credentialless'
     
     response.headers['Cross-Origin-Opener-Policy'] = 'same-origin'
 

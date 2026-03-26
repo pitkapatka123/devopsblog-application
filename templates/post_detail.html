@@ -1,10 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
 <article>
-  <h2>{{ post.meta.title }}</h2>
-  <p><em>{{ post.meta.date }}</em></p>
+  <header class="post-header">
+    <h2>{{ post.meta.title }}</h2>
+    <time>{{ post.meta.date }}</time>
+  </header>
   <div class="content">
     {{ post.html|safe }}
   </div>
+  <a class="back-link" href="{{ url_for('list_posts') }}">&larr; back to posts</a>
 </article>
 {% endblock %}
