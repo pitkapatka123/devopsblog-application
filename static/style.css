@@ -82,6 +82,12 @@ body {
 .d30 { left: 93%; animation-duration: 12.8s; animation-delay: -7s;   width: 28px; height: 28px; }
 .d31 { left: 42%; animation-duration: 22.1s; animation-delay: -13s;  width: 24px; height: 24px; }
 .d32 { left: 57%; animation-duration: 15.3s; animation-delay: -4s;   width: 20px; height: 20px; }
+.d33 { left: 31%; animation-duration: 16.8s; animation-delay: -11s;  width: 24px; height: 24px; }
+.d34 { left: 68%; animation-duration: 19.2s; animation-delay: -7s;   width: 26px; height: 26px; }
+.d35 { left: 82%; animation-duration: 14.1s; animation-delay: -3s;   width: 22px; height: 22px; }
+.d36 { left: 46%; animation-duration: 20.8s; animation-delay: -15s;  width: 28px; height: 28px; }
+.d37 { left: 16%; animation-duration: 15.8s; animation-delay: -9s;   width: 20px; height: 20px; }
+.d38 { left: 74%; animation-duration: 18.2s; animation-delay: -13s;  width: 30px; height: 30px; }
 
 @keyframes fall {
   0% {
