@@ -1,13 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
 <article>
-  <header class="post-header">
-    <h2>{{ post.meta.title }}</h2>
-    <time>{{ post.meta.date }}</time>
-  </header>
+  <div class="yaml-frontmatter">
+    <p class="yaml-delimiter">---</p>
+    <p class="yaml-line"><span class="yaml-key">title:</span> <span class="yaml-string">"{{ post.meta.title }}"</span></p>
+    <p class="yaml-line"><span class="yaml-key">date:</span> <span class="yaml-value">{{ post.meta.date }}</span></p>
+    <p class="yaml-line"><span class="yaml-key">author:</span> <span class="yaml-value">valentin</span></p>
+    <p class="yaml-line"><span class="yaml-key">status:</span> <span class="yaml-status">published</span></p>
+    <p class="yaml-delimiter">---</p>
+  </div>
   <div class="content">
     {{ post.html|safe }}
   </div>
-  <a class="back-link" href="{{ url_for('list_posts') }}">&larr; back to posts</a>
+  <a class="back-link" href="{{ url_for('list_posts') }}">$ cd ..</a>
 </article>
 {% endblock %}
