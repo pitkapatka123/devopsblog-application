@@ -45,11 +45,11 @@ body {
   top: -60px;
   width: 28px;
   height: 28px;
-  opacity: 0.08;
+  opacity: 0.11;
   animation: fall linear infinite;
 }
 
-/* Negative delays = icons already distributed across viewport on load. Durations ×0.85 for 15% faster. */
+/* Negative delays = icons already distributed across viewport on load. */
 .d1  { left:  3%; animation-duration: 15.3s; animation-delay: -7s;   width: 24px; height: 24px; }
 .d2  { left:  9%; animation-duration: 18.7s; animation-delay: -3s;   width: 30px; height: 30px; }
 .d3  { left: 15%; animation-duration: 13.6s; animation-delay: -11s;  width: 20px; height: 20px; }
@@ -88,6 +88,21 @@ body {
 .d36 { left: 46%; animation-duration: 20.8s; animation-delay: -15s;  width: 28px; height: 28px; }
 .d37 { left: 16%; animation-duration: 15.8s; animation-delay: -9s;   width: 20px; height: 20px; }
 .d38 { left: 74%; animation-duration: 18.2s; animation-delay: -13s;  width: 30px; height: 30px; }
+.d39 { left:  1%; animation-duration: 17.4s; animation-delay: -6s;   width: 22px; height: 22px; }
+.d40 { left:  8%; animation-duration: 14.8s; animation-delay: -12s;  width: 26px; height: 26px; }
+.d41 { left: 20%; animation-duration: 19.1s; animation-delay: -2s;   width: 20px; height: 20px; }
+.d42 { left: 29%; animation-duration: 16.5s; animation-delay: -14s;  width: 30px; height: 30px; }
+.d43 { left: 35%; animation-duration: 21.5s; animation-delay: -8s;   width: 24px; height: 24px; }
+.d44 { left: 41%; animation-duration: 13.9s; animation-delay: -10s;  width: 28px; height: 28px; }
+.d45 { left: 52%; animation-duration: 18.3s; animation-delay: -4s;   width: 22px; height: 22px; }
+.d46 { left: 59%; animation-duration: 15.6s; animation-delay: -16s;  width: 26px; height: 26px; }
+.d47 { left: 66%; animation-duration: 20.1s; animation-delay: -1s;   width: 20px; height: 20px; }
+.d48 { left: 71%; animation-duration: 14.3s; animation-delay: -11s;  width: 32px; height: 32px; }
+.d49 { left: 79%; animation-duration: 17.7s; animation-delay: -7s;   width: 24px; height: 24px; }
+.d50 { left: 84%; animation-duration: 19.8s; animation-delay: -15s;  width: 22px; height: 22px; }
+.d51 { left: 91%; animation-duration: 13.5s; animation-delay: -5s;   width: 28px; height: 28px; }
+.d52 { left: 97%; animation-duration: 16.9s; animation-delay: -18s;  width: 20px; height: 20px; }
+.d53 { left: 26%; animation-duration: 20.6s; animation-delay: -9s;   width: 26px; height: 26px; }
 
 @keyframes fall {
   0% {
@@ -95,10 +110,10 @@ body {
     opacity: 0;
   }
   3% {
-    opacity: 0.08;
+    opacity: 0.11;
   }
   92% {
-    opacity: 0.08;
+    opacity: 0.11;
   }
   100% {
     transform: translateY(110vh) rotate(25deg);
@@ -155,63 +170,64 @@ main {
   padding: 2.5rem 0;
 }
 
-/* ── Posts list ── */
-.posts-list h2 {
-  font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  color: #e0e0e0;
+/* ── Posts list — git log ── */
+.git-log-section {
+  margin-bottom: 2rem;
 }
 
-.posts-list ul {
-  list-style: none;
+.git-log-cmd {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.82rem;
+  color: #888;
+  background: #12122a;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px 8px 0 0;
+  border: 1px solid #2a2a4a;
+  border-bottom: none;
 }
 
-.posts-list li {
-  border-bottom: 1px solid #2a2a4a;
+.git-log {
+  background: #12122a;
+  border: 1px solid #2a2a4a;
+  border-radius: 0 0 8px 8px;
+  padding: 0.5rem 0;
 }
 
-.posts-list li:first-child {
-  border-top: 1px solid #2a2a4a;
-}
-
-.posts-list li a {
+.git-log-entry {
   display: flex;
   align-items: baseline;
   gap: 0.75rem;
-  padding: 1rem 0;
+  padding: 0.5rem 1.25rem;
   text-decoration: none;
-  color: #e0e0e0;
-  transition: color 0.15s;
-}
-
-.posts-list li a:hover {
-  color: #ff9500;
-}
-
-.posts-list .post-title {
-  font-weight: 500;
-  flex: 1;
-}
-
-.posts-list .post-meta {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.8rem;
-  color: #666;
-  white-space: nowrap;
+  font-size: 0.82rem;
+  color: #e0e0e0;
+  transition: background 0.15s;
 }
 
-.posts-list .arrow {
-  font-size: 0.9rem;
-  color: transparent;
-  transition: color 0.15s, transform 0.15s;
-  display: inline-block;
+.git-log-entry:hover {
+  background: #1e1e3a;
 }
 
-.posts-list li a:hover .arrow {
+.git-hash {
   color: #ff9500;
-  transform: translateX(3px);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.git-msg {
+  flex: 1;
+  color: #e0e0e0;
+}
+
+.git-log-entry:hover .git-msg {
+  color: #ff9500;
+}
+
+.git-date {
+  color: #555;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* ── Article ── */
@@ -223,16 +239,41 @@ article h2 {
   color: #e0e0e0;
 }
 
-.post-header {
+/* YAML Frontmatter */
+.yaml-frontmatter {
+  background: #12122a;
+  border: 1px solid #2a2a4a;
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
   margin-bottom: 2rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.82rem;
+  line-height: 1.8;
 }
 
-.post-header time {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.85rem;
-  color: #666;
-  display: block;
-  margin-top: 0.5rem;
+.yaml-delimiter {
+  color: #555;
+}
+
+.yaml-line {
+  padding-left: 0.5rem;
+}
+
+.yaml-key {
+  color: #ff9500;
+}
+
+.yaml-string {
+  color: #28c840;
+}
+
+.yaml-value {
+  color: #e0e0e0;
+}
+
+.yaml-status {
+  color: #28c840;
+  font-weight: 500;
 }
 
 .content {
@@ -723,6 +764,129 @@ article h2 {
 .about-credits .dim {
   font-size: 0.9rem;
   color: #666;
+}
+
+/* ══════════════════════════════════
+   Contact Page — Service Endpoints
+   ══════════════════════════════════ */
+
+.contact-page {
+  margin-bottom: 2rem;
+}
+
+.endpoint-terminal {
+  background: #12122a;
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+  border: 1px solid #2a2a4a;
+  border-bottom: none;
+}
+
+.endpoint-terminal .terminal-body {
+  padding: 0.75rem 1.25rem;
+}
+
+.endpoint-cmd {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.82rem;
+  color: #888;
+}
+
+.endpoint-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.82rem;
+  background: #12122a;
+  border: 1px solid #2a2a4a;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.endpoint-table thead th {
+  background: #1e1e3a;
+  text-align: left;
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #ff9500;
+  border-bottom: 1px solid #2a2a4a;
+}
+
+.endpoint-table tbody td {
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid #1e1e3a;
+  color: #e0e0e0;
+}
+
+.endpoint-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.endpoint-table tbody tr:hover {
+  background: #1e1e3a;
+}
+
+.method-get {
+  color: #28c840;
+  font-weight: 600;
+}
+
+.method-post {
+  color: #ffbd2e;
+  font-weight: 600;
+}
+
+.status-ok {
+  color: #28c840;
+  font-weight: 500;
+}
+
+.status-err {
+  color: #ff5f57;
+  font-weight: 500;
+}
+
+.endpoint-link {
+  color: #e0e0e0;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.endpoint-link:hover {
+  color: #ff9500;
+}
+
+.endpoint-dead {
+  color: #555;
+  text-decoration: line-through;
+}
+
+.latency {
+  color: #888;
+}
+
+.latency-dead {
+  color: #ff5f57;
+  font-weight: 500;
+}
+
+.endpoint-note {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  color: #555;
+  font-style: italic;
+}
+
+.code-inline {
+  background: #252545;
+  color: #ffb347;
+  padding: 0.1em 0.4em;
+  border-radius: 3px;
+  font-style: normal;
 }
 
 /* ── Footer ── */

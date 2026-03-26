@@ -1,17 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="posts-list">
-  <h2>All Blog Posts</h2>
-  <ul>
+<section class="git-log-section">
+  <p class="git-log-cmd">$ git log --oneline --all</p>
+  <div class="git-log">
     {% for post in posts %}
-      <li>
-        <a href="{{ url_for('post_detail', slug=post.slug) }}">
-          <span class="post-title">{{ post.meta.title }}</span>
-          <span class="post-meta">{{ post.meta.date }}</span>
-          <span class="arrow">&rarr;</span>
-        </a>
-      </li>
+      <a class="git-log-entry" href="{{ url_for('post_detail', slug=post.slug) }}">
+        <span class="git-hash">{{ post.slug[:7] }}</span>
+        <span class="git-msg">{{ post.meta.title }}</span>
+        <span class="git-date">({{ post.meta.date }})</span>
+      </a>
     {% endfor %}
-  </ul>
+  </div>
 </section>
 {% endblock %}

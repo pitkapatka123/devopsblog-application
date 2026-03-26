@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<article class="contact-page">
+
+  <div class="endpoint-terminal">
+    <div class="terminal-header">
+      <span class="terminal-dot red"></span>
+      <span class="terminal-dot yellow"></span>
+      <span class="terminal-dot green"></span>
+      <span class="terminal-title">valentin@devops:~ kubectl get endpoints</span>
+    </div>
+    <div class="terminal-body">
+      <p class="endpoint-cmd">$ curl -s /api/contact | jq '.endpoints[]'</p>
+    </div>
+  </div>
+
+  <table class="endpoint-table">
+    <thead>
+      <tr>
+        <th>METHOD</th>
+        <th>ENDPOINT</th>
+        <th>STATUS</th>
+        <th>LATENCY</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="method-get">GET</td>
+        <td><a href="https://github.com/pitkapatka123" class="endpoint-link">/github</a></td>
+        <td class="status-ok">200 OK</td>
+        <td class="latency">&lt; 1ms</td>
+      </tr>
+      <tr>
+        <td class="method-get">GET</td>
+        <td><a href="https://www.linkedin.com/in/valentin-dodov-24a6aa1a0/" class="endpoint-link">/linkedin</a></td>
+        <td class="status-ok">200 OK</td>
+        <td class="latency">&lt; 1ms</td>
+      </tr>
+      <tr>
+        <td class="method-post">POST</td>
+        <td><a href="mailto:valioworks@gmail.com" class="endpoint-link">/email</a></td>
+        <td class="status-ok">200 OK</td>
+        <td class="latency">~24h</td>
+      </tr>
+      <tr>
+        <td class="method-get">GET</td>
+        <td><span class="endpoint-dead">/twitter</span></td>
+        <td class="status-err">404</td>
+        <td class="latency-dead">NOT FOUND</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="endpoint-note">All endpoints accept <span class="code-inline">Content-Type: text/friendly</span></p>
+
+</article>
+{% endblock %}

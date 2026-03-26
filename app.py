@@ -91,10 +91,7 @@ def about_page():
 
 @app.route("/contact")
 def contact_page():
-    page = provider.get_page("contact")
-    if not page:
-        abort(404)
-    return render_template("page.html", page=page)
+    return render_template("contact.html")
 
 
 @app.route("/health")
